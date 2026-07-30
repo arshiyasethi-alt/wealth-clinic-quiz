@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wealth Clinic — Money Vitals Check</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --bg:#EFF4F1; --card:#FFFFFF; --ink:#0F2A2E; --ink-soft:#4A6259;
+  --teal:#1F6F5C; --teal-deep:#14493D; --gold:#C79A3D; --brick:#B5493D; --line:#DCE6E1;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:var(--ink);padding:32px 16px;display:flex;justify-content:center;}
+.app{width:100%;max-width:640px;}
+
+.masthead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;}
+.masthead .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:600;}
+.masthead h1{font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:4px 0 0 0;letter-spacing:-.01em;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;background:var(--teal-deep);color:#EFF4F1;padding:6px 10px;border-radius:999px;white-space:nowrap;align-self:flex-start;}
+
+/* ---- Sector select ---- */
+.sector-screen{display:flex;flex-direction:column;gap:12px;}
+.sector-intro{font-size:14.5px;color:var(--ink-soft);line-height:1.55;margin:0 0 6px 0;}
+.sector-card{
+  background:var(--card);border:1.5px solid var(--line);border-radius:18px;
+  padding:20px 20px;cursor:pointer;text-align:left;display:flex;gap:16px;align-items:flex-start;
+  transition:border-color .15s ease, transform .1s ease;
+}
+.sector-card:hover{border-color:var(--teal);transform:translateY(-1px);}
+.sector-mark{
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;color:#fff;
+}
+.sector-body .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:600;display:block;margin-bottom:3px;}
+.sector-body h3{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin:0 0 4px 0;}
+.sector-body p{font-size:13.5px;color:var(--ink-soft);margin:0;line-height:1.5;}
+
+/* ---- Vitals strip ---- */
+.vitals-strip{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin-bottom:18px;display:none;align-items:center;gap:14px;}
+.vitals-strip.show{display:flex;}
+.pulse-path{fill:none;stroke:var(--line);stroke-width:2.5;}
+.pulse-path-fill{fill:none;stroke:var(--teal);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1);}
+.vitals-readout{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);}
+.vitals-readout b{color:var(--ink);font-size:14px;}
+.track-chip{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;background:#EAF4EF;color:var(--teal-deep);padding:5px 9px;border-radius:999px;font-weight:600;}
+
+/* ---- Quiz card ---- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 26px 26px;min-height:340px;display:none;flex-direction:column;}
+.card.show{display:flex;}
+.q-number{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:.08em;margin-bottom:10px;}
+.q-text{font-family:'Fraunces',serif;font-size:21px;font-weight:500;line-height:1.35;margin:0 0 22px 0;}
+.options{display:flex;flex-direction:column;gap:10px;}
+.option{text-align:left;border:1.5px solid var(--line);background:#FBFCFB;border-radius:12px;padding:14px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .15s ease, background .15s ease, transform .1s ease;}
+.option:hover:not(:disabled){border-color:var(--teal);transform:translateY(-1px);}
+.option:disabled{cursor:default;}
+.option .letter{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;width:22px;height:22px;border-radius:6px;background:var(--line);color:var(--ink-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.option.correct{border-color:var(--teal);background:#EAF4EF;}
+.option.correct .letter{background:var(--teal);color:#fff;}
+.option.wrong{border-color:var(--brick);background:#FBEEEC;}
+.option.wrong .letter{background:var(--brick);color:#fff;}
+.option.dim{opacity:.5;}
+.option.picked{border-color:var(--teal);background:#EAF4EF;}
+.option.picked .letter{background:var(--teal);color:#fff;}
+
+.feedback{margin-top:16px;padding:12px 14px;border-radius:12px;font-size:13.5px;line-height:1.5;display:none;animation:rise .25s ease;}
+@keyframes rise{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.feedback.show{display:block;}
+.feedback.good{background:#EAF4EF;color:var(--teal-deep);}
+.feedback.bad{background:#FBEEEC;color:var(--brick);}
+.feedback.neutral{background:#F2F0E9;color:var(--ink-soft);}
+.feedback .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:4px;font-weight:600;}
+
+.footer-row{margin-top:auto;padding-top:20px;display:flex;justify-content:space-between;align-items:center;}
+.back-link{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;}
+.next-btn{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;letter-spacing:.03em;background:var(--teal);color:#fff;border:none;border-radius:999px;padding:11px 22px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s ease, background .15s ease;}
+.next-btn.show{opacity:1;pointer-events:auto;}
+.next-btn:hover{background:var(--teal-deep);}
+
+/* ---- Results ---- */
+.results{display:none;flex-direction:column;align-items:center;text-align:center;padding:20px 6px 6px;}
+.results.show{display:flex;}
+.gauge-wrap{position:relative;width:170px;height:170px;margin-bottom:14px;}
+.gauge-score{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.gauge-score .num{font-family:'Fraunces',serif;font-size:38px;font-weight:600;color:var(--ink);line-height:1;}
+.gauge-score .of{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+.gauge-ring-bg{fill:none;stroke:var(--line);stroke-width:10;}
+.gauge-ring-fill{fill:none;stroke:var(--teal);stroke-width:10;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1);}
+
+.stamp-wrap{width:130px;height:130px;border-radius:50%;border:3px solid var(--teal);display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:#EAF4EF;animation:stampin .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes stampin{from{transform:scale(.7);opacity:0;}to{transform:scale(1);opacity:1;}}
+.stamp-wrap .mono{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--teal-deep);padding:0 12px;line-height:1.25;}
+
+.tier-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:6px;}
+.tier-title{font-family:'Fraunces',serif;font-size:23px;font-weight:600;margin:0 0 10px 0;}
+.tier-desc{font-size:14.5px;color:var(--ink-soft);line-height:1.55;max-width:440px;margin:0 0 22px 0;}
+.results-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.cta-btn{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;border-radius:999px;padding:12px 22px;cursor:pointer;border:none;}
+.cta-btn.primary{background:var(--gold);color:var(--teal-deep);}
+.cta-btn.primary:hover{background:#B98A2E;}
+.cta-btn.ghost{background:transparent;color:var(--teal);border:1.5px solid var(--teal);}
+.cta-btn.ghost:hover{background:#EAF4EF;}
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <div>
+      <div class="eyebrow">Robinhood Capital × OneInsure</div>
+      <h1>Money Vitals Check</h1>
+    </div>
+    <div class="badge">FREE CHECK-UP</div>
+  </div>
+
+  <div class="vitals-strip" id="vitalsStrip">
+    <svg width="56" height="28" viewBox="0 0 64 32">
+      <path class="pulse-path" d="M0 16 L14 16 L19 4 L25 28 L30 16 L64 16"/>
+      <path class="pulse-path-fill" id="pulseFill" d="M0 16 L14 16 L19 4 L25 28 L30 16 L64 16"/>
+    </svg>
+    <div class="vitals-readout">Progress <b id="progressReadout">Q1</b></div>
+    <div class="track-chip" id="trackChip">TRACK</div>
+  </div>
+
+  <!-- Sector select -->
+  <div class="sector-screen" id="sectorScreen">
+    <p class="sector-intro">Three quick check-ups, each built for a different starting point. Pick the one that sounds like you.</p>
+
+    <button class="sector-card" data-track="track1">
+      <div class="sector-mark" style="background:#1F6F5C;">01</div>
+      <div class="sector-body">
+        <span class="tag">Not investing yet</span>
+        <h3>Where does your money story begin?</h3>
+        <p>A light, no-pressure read on your habits and mindset — no right or wrong answers, just you.</p>
+      </div>
+    </button>
+
+    <button class="sector-card" data-track="track2">
+      <div class="sector-mark" style="background:#C79A3D;">02</div>
+      <div class="sector-body">
+        <span class="tag">Already invest, through a wealth manager</span>
+        <h3>How well is your money being looked after?</h3>
+        <p>Reflect on your current experience and see where a second opinion could add the most value.</p>
+      </div>
+    </button>
+
+    <button class="sector-card" data-track="track3">
+      <div class="sector-mark" style="background:#14493D;">03</div>
+      <div class="sector-body">
+        <span class="tag">Invest on your own, directly</span>
+        <h3>Test your investing knowledge</h3>
+        <p>A 10-question check on the fundamentals — SIPs, funds, risk, and the numbers behind them.</p>
+      </div>
+    </button>
+  </div>
+
+  <!-- Quiz card -->
+  <div class="card" id="quizCard">
+    <div class="q-number" id="qNumber">QUESTION 01</div>
+    <p class="q-text" id="qText"></p>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback">
+      <span class="tag" id="feedbackTag"></span>
+      <span id="feedbackText"></span>
+    </div>
+    <div class="footer-row">
+      <button class="back-link" id="backLink">← choose a different check-up</button>
+      <button class="next-btn" id="nextBtn">Next →</button>
+    </div>
+  </div>
+
+  <!-- Results: knowledge (gauge) -->
+  <div class="card results" id="resultsKnowledge">
+    <div class="tier-label">Your reading</div>
+    <div class="gauge-wrap">
+      <svg width="170" height="170" viewBox="0 0 180 180">
+        <circle class="gauge-ring-bg" cx="90" cy="90" r="76"/>
+        <circle class="gauge-ring-fill" id="gaugeFill" cx="90" cy="90" r="76"/>
+      </svg>
+      <div class="gauge-score"><div class="num" id="scoreNum">0</div><div class="of">OUT OF 10</div></div>
+    </div>
+    <div class="tier-title" id="kTitle"></div>
+    <p class="tier-desc" id="kDesc"></p>
+    <div class="results-actions">
+      <button class="cta-btn primary" id="retakeKnowledge">Retake this check-up</button>
+      <button class="cta-btn ghost" id="switchFromKnowledge">Try a different track</button>
+    </div>
+  </div>
+
+  <!-- Results: stamp-style (track1 / track2) -->
+  <div class="card results" id="resultsStamp">
+    <div class="tier-label" id="stampEyebrow">Your reading</div>
+    <div class="stamp-wrap"><span class="mono" id="stampText">—</span></div>
+    <div class="tier-title" id="sTitle"></div>
+    <p class="tier-desc" id="sDesc"></p>
+    <div class="results-actions">
+      <button class="cta-btn primary" id="retakeStamp">Retake this check-up</button>
+      <button class="cta-btn ghost" id="switchFromStamp">Try a different track</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ---------------------------- DATA ---------------------------- */
+
+// TRACK 1 — not investing yet (personality, tags 0-3)
+const ARCHETYPES = [
+  { code:"CS", eyebrow:"Your money mindset", title:"The Curious Starter",
+    desc:"You're genuinely curious about investing — you just need a plain-language starting point. A Wealth Clinic session is built for exactly that: no jargon, just your first steps mapped out clearly." },
+  { code:"CV", eyebrow:"Your money mindset", title:"The Cautious Saver",
+    desc:"You've already built the hard habit — saving consistently. The next step is simply making that money work harder. A short conversation can show you how to move from saving to growing, at a pace that feels comfortable." },
+  { code:"BP", eyebrow:"Your money mindset", title:"The Busy Postponer",
+    desc:"You're not against investing — life just hasn't made room for it yet. A 20-minute Wealth Clinic session is designed for exactly that: quick, clear, and doesn't ask for a big time commitment." },
+  { code:"OB", eyebrow:"Your money mindset", title:"The Thoughtful Beginner",
+    desc:"Money talk can feel like a lot to take in, and that's completely normal. Our job is to make it simple — no assumptions, no jargon, just clear answers to whatever's on your mind, at your own pace." }
+];
+
+const track1 = {
+  label:"TRACK 01",
+  type:"personality",
+  questions:[
+    { q:"When you get some unexpected extra money, what's your first move?",
+      options:[
+        {label:"Put it straight into savings", tag:1},
+        {label:"Spend it on something I've been wanting", tag:2},
+        {label:"Split it — save some, spend some", tag:0},
+        {label:"Honestly, it just kind of disappears", tag:3}
+      ]},
+    { q:"When investing comes up in conversation, you feel...",
+      options:[
+        {label:"Curious, I want to know more", tag:0},
+        {label:"Like it's not for me right now", tag:2},
+        {label:"A bit anxious, it feels complicated", tag:3},
+        {label:"Comfortable with the idea, just haven't acted", tag:1}
+      ]},
+    { q:"How would you describe your relationship with money today?",
+      options:[
+        {label:"I track it closely", tag:1},
+        {label:"I go with the flow", tag:2},
+        {label:"I try not to think about it too much", tag:3},
+        {label:"I have a rough sense of where I stand", tag:0}
+      ]},
+    { q:"If a friend offered to explain investing over coffee, in plain language, you'd say...",
+      options:[
+        {label:"Yes, let's do it this week", tag:0},
+        {label:"Maybe, once things settle down", tag:2},
+        {label:"I'd rather read up on my own first", tag:1},
+        {label:"I'd probably keep putting it off", tag:3}
+      ]},
+    { q:"What's mainly holding you back from investing right now?",
+      options:[
+        {label:"Not sure where to even start", tag:0},
+        {label:"Just haven't gotten around to it", tag:2},
+        {label:"Feels risky, I'd rather keep saving", tag:1},
+        {label:"The whole topic feels like a lot", tag:3}
+      ]},
+    { q:"When you think about your financial future, you mostly feel...",
+      options:[
+        {label:"Hopeful and curious", tag:0},
+        {label:"Fine — I'll figure it out eventually", tag:2},
+        {label:"A little anxious", tag:3},
+        {label:"Responsible, I like having a plan", tag:1}
+      ]},
+    { q:"How do you usually make bigger decisions?",
+      options:[
+        {label:"Research thoroughly before deciding", tag:0},
+        {label:"Ask people I trust", tag:1},
+        {label:"Take my time, decide slowly", tag:2},
+        {label:"Go with my gut", tag:3}
+      ]},
+    { q:"Which best describes your saving habit?",
+      options:[
+        {label:"I save regularly, without fail", tag:1},
+        {label:"I save whatever's left over", tag:2},
+        {label:"I save toward specific goals", tag:0},
+        {label:"I don't really save in a structured way", tag:3}
+      ]}
+  ]
+};
+
+// TRACK 2 — invest through another wealth manager (value-add discovery, tags 0-3)
+const VALUEGAPS = [
+  { code:"CO", eyebrow:"Where we can add the most value", title:"Proactive Communication",
+    desc:"You'd value more regular, proactive contact — not just when markets move. That's central to how we work: scheduled check-ins and updates, so you're never the one chasing for answers." },
+  { code:"FT", eyebrow:"Where we can add the most value", title:"Clear Fee Transparency",
+    desc:"Knowing exactly what you pay, and why, matters to you. We lay out every cost in plain language upfront — no fine print, no surprises." },
+  { code:"PZ", eyebrow:"Where we can add the most value", title:"True Personalization",
+    desc:"You want a plan built around you, not a template. A Wealth Clinic conversation starts with your specific goals and stage of life — not a one-size-fits-all model portfolio." },
+  { code:"HP", eyebrow:"Where we can add the most value", title:"Holistic Planning",
+    desc:"You're looking for more than investment advice alone — insurance, tax, and estate planning that work together. That full-picture approach is exactly what we specialize in." }
+];
+
+const track2 = {
+  label:"TRACK 02",
+  type:"personality",
+  questions:[
+    { q:"What do you wish you understood better about your current investments?",
+      options:[
+        {label:"How often my portfolio is actually being reviewed", tag:0},
+        {label:"Exactly what I'm paying in fees, and why", tag:1},
+        {label:"Whether my plan is really built around my goals", tag:2},
+        {label:"How my investments connect to tax, insurance, and my bigger goals", tag:3}
+      ]},
+    { q:"When you have a question about your money, what usually happens?",
+      options:[
+        {label:"I have to chase my advisor for an answer", tag:0},
+        {label:"I get an answer, but not sure it's the full picture", tag:1},
+        {label:"I get an answer, but it feels a bit templated", tag:2},
+        {label:"I get an answer about investments, but not the bigger picture", tag:3}
+      ]},
+    { q:"How well do you understand what you're actually invested in right now?",
+      options:[
+        {label:"I'd like more regular updates on it", tag:0},
+        {label:"I understand the products, less clear on total costs", tag:1},
+        {label:"I understand it, but it doesn't feel tailored to me", tag:2},
+        {label:"I understand it, but not how it fits my whole financial life", tag:3}
+      ]},
+    { q:"If you could add one thing to your current wealth management experience, it'd be...",
+      options:[
+        {label:"More proactive updates", tag:0},
+        {label:"Clearer, simpler fee breakdowns", tag:1},
+        {label:"A plan that feels built for me", tag:2},
+        {label:"Help beyond investing — insurance, tax, estate planning", tag:3}
+      ]},
+    { q:"How did your current investment plan come about?",
+      options:[
+        {label:"A recommendation I didn't get to discuss much", tag:0},
+        {label:"Honestly, I'm not sure how the costs were decided", tag:1},
+        {label:"It's fairly standard, not built around my specific goals", tag:2},
+        {label:"It only covers investments, not my full financial picture", tag:3}
+      ]},
+    { q:"What would make you feel more confident about your money?",
+      options:[
+        {label:"Knowing someone's actively watching it, not just me checking", tag:0},
+        {label:"Knowing exactly where every rupee of fees goes", tag:1},
+        {label:"Knowing my plan reflects my actual goals and life stage", tag:2},
+        {label:"Knowing my investments, insurance, and tax all work together", tag:3}
+      ]},
+    { q:"What's the last thing your advisor proactively told you about?",
+      options:[
+        {label:"Honestly, it's been a while since they reached out", tag:0},
+        {label:"Not sure — the fee structure isn't very clear to me", tag:1},
+        {label:"Nothing specific to my particular situation", tag:2},
+        {label:"Just fund performance, not my broader finances", tag:3}
+      ]},
+    { q:"What matters most to you in a wealth management relationship?",
+      options:[
+        {label:"Regular, proactive communication", tag:0},
+        {label:"Complete transparency on costs", tag:1},
+        {label:"A plan personalized to me", tag:2},
+        {label:"One place for all my financial needs", tag:3}
+      ]}
+  ]
+};
+
+// TRACK 3 — direct/self-directed investors (knowledge, scored)
+const track3 = {
+  label:"TRACK 03",
+  type:"knowledge",
+  questions:[
+    { q:"Which investment is generally meant for long-term wealth creation?",
+      options:["Equity Mutual Fund","Savings Account","Wallet Cash"], correct:0,
+      why:"Equity mutual funds are built to grow money over years by riding out short-term ups and downs — savings accounts and idle cash mainly protect money, they don't grow it much." },
+    { q:"Which investment lets you invest a small amount every month?",
+      options:["SIP","Lump Sum Only","EMI"], correct:0,
+      why:"A SIP (Systematic Investment Plan) lets you put in a fixed, smaller amount every month instead of one big sum — making investing a habit rather than a one-time event." },
+    { q:"Which of these is generally more stable?",
+      options:["Large Cap Companies","Small Cap Companies","Startups"], correct:0,
+      why:"Large cap companies are big, established businesses with steadier earnings, so their share prices tend to swing less than smaller, younger companies." },
+    { q:"Which is a tax-saving mutual fund?",
+      options:["ELSS","Liquid Fund","Overnight Fund"], correct:0,
+      why:"ELSS (Equity Linked Savings Scheme) funds qualify for a tax deduction under Section 80C — liquid and overnight funds are for parking cash short-term, not for saving tax." },
+    { q:"What is the biggest advantage of starting to invest early?",
+      options:["Power of Compounding","Lower Taxes","Free Returns"], correct:0,
+      why:"The earlier you start, the longer your returns have to earn returns of their own — that snowball effect is compounding, and time is the main ingredient it needs." },
+    { q:"What should you build before you start investing?",
+      options:["Emergency Fund","Retirement Fund","Vacation Fund"], correct:0,
+      why:"An emergency fund (usually 3–6 months of expenses) means you won't have to break your investments the moment life throws a surprise at you." },
+    { q:"What does \"long term\" generally mean for equity investing?",
+      options:["5 years or more","6 months","1 year"], correct:0,
+      why:"Equities need time to smooth out short-term volatility — five years or more is the usual minimum horizon for equity to reliably work in your favour." },
+    { q:"What helps reduce overall investment risk?",
+      options:["Diversification","Timing the Market","Concentration"], correct:0,
+      why:"Spreading money across asset types and sectors means one bad performer doesn't sink your whole portfolio — that's diversification doing its job." },
+    { q:"Which investment is generally the most volatile?",
+      options:["Small Cap Fund","Large Cap Fund","Liquid Fund"], correct:0,
+      why:"Small cap funds invest in smaller, less established companies — higher growth potential, but also sharper ups and downs along the way." },
+    { q:"What does CAGR measure?",
+      options:["Average Annual Growth Rate","Annual Tax Rate","Inflation Rate"], correct:0,
+      why:"CAGR (Compound Annual Growth Rate) tells you the smoothed-out yearly rate at which an investment grew over a period — one clean number for a bumpy ride." }
+  ]
+};
+
+const TRACKS = { track1, track2, track3 };
+
+/* ---------------------------- ENGINE ---------------------------- */
+let activeTrackKey = null;
+let current = 0;
+let score = 0;
+let tally = [0,0,0,0];
+let answered = false;
+
+const sectorScreen = document.getElementById('sectorScreen');
+const quizCard = document.getElementById('quizCard');
+const resultsKnowledge = document.getElementById('resultsKnowledge');
+const resultsStamp = document.getElementById('resultsStamp');
+const vitalsStrip = document.getElementById('vitalsStrip');
+const trackChip = document.getElementById('trackChip');
+
+const qNumber = document.getElementById('qNumber');
+const qText = document.getElementById('qText');
+const optionsEl = document.getElementById('options');
+const feedback = document.getElementById('feedback');
+const feedbackTag = document.getElementById('feedbackTag');
+const feedbackText = document.getElementById('feedbackText');
+const nextBtn = document.getElementById('nextBtn');
+const backLink = document.getElementById('backLink');
+const progressReadout = document.getElementById('progressReadout');
+const pulseFill = document.getElementById('pulseFill');
+
+const pulseLen = pulseFill.getTotalLength ? pulseFill.getTotalLength() : 1;
+pulseFill.style.strokeDasharray = pulseLen;
+pulseFill.style.strokeDashoffset = pulseLen;
+
+function showOnly(el){
+  [sectorScreen, quizCard, resultsKnowledge, resultsStamp].forEach(e=>{
+    if(e===sectorScreen){ e.style.display = (e===el)?'flex':'none'; }
+    else { e.classList.toggle('show', e===el); }
+  });
+  vitalsStrip.classList.toggle('show', el===quizCard);
+}
+
+document.querySelectorAll('.sector-card').forEach(card=>{
+  card.addEventListener('click', ()=>startTrack(card.dataset.track));
+});
+backLink.addEventListener('click', goToSectorSelect);
+document.getElementById('switchFromKnowledge').addEventListener('click', goToSectorSelect);
+document.getElementById('switchFromStamp').addEventListener('click', goToSectorSelect);
+document.getElementById('retakeKnowledge').addEventListener('click', ()=>startTrack('track3'));
+document.getElementById('retakeStamp').addEventListener('click', ()=>startTrack(activeTrackKey));
+
+function goToSectorSelect(){
+  activeTrackKey = null;
+  showOnly(sectorScreen);
+}
+
+function startTrack(key){
+  activeTrackKey = key;
+  current = 0; score = 0; tally = [0,0,0,0];
+  trackChip.textContent = TRACKS[key].label;
+  showOnly(quizCard);
+  renderQuestion();
+}
+
+function updatePulse(){
+  const total = TRACKS[activeTrackKey].questions.length;
+  const frac = current / total;
+  pulseFill.style.strokeDashoffset = pulseLen * (1 - frac);
+  progressReadout.textContent = `Q${Math.min(current+1,total)} of ${total}`;
+}
+
+function letterFor(i){ return ['A','B','C','D'][i]; }
+
+function renderQuestion(){
+  answered = false;
+  const track = TRACKS[activeTrackKey];
+  const item = track.questions[current];
+  qNumber.textContent = `QUESTION ${String(current+1).padStart(2,'0')} / ${track.questions.length}`;
+  qText.textContent = item.q;
+  optionsEl.innerHTML = '';
+  feedback.classList.remove('show','good','bad','neutral');
+  nextBtn.classList.remove('show');
+  updatePulse();
+
+  const opts = track.type === 'knowledge' ? item.options : item.options.map(o=>o.label);
+
+  opts.forEach((opt, idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="letter">${letterFor(idx)}</span><span>${opt}</span>`;
+    btn.addEventListener('click', ()=>selectOption(idx));
+    optionsEl.appendChild(btn);
+  });
+}
+
+function selectOption(idx){
+  if (answered) return;
+  answered = true;
+  const track = TRACKS[activeTrackKey];
+  const item = track.questions[current];
+  const allBtns = optionsEl.querySelectorAll('.option');
+
+  if (track.type === 'knowledge'){
+    const isCorrect = idx === item.correct;
+    if (isCorrect) score++;
+    allBtns.forEach((b,i)=>{
+      b.disabled = true;
+      if (i===item.correct) b.classList.add('correct');
+      if (i===idx && idx!==item.correct) b.classList.add('wrong');
+      if (i!==idx && i!==item.correct) b.classList.add('dim');
+    });
+    feedback.classList.add('show', isCorrect?'good':'bad');
+    feedbackTag.textContent = isCorrect ? "Right on the money" : "Worth a second look";
+    feedbackText.textContent = item.why;
+  } else {
+    tally[item.options[idx].tag]++;
+    allBtns.forEach((b,i)=>{
+      b.disabled = true;
+      if (i===idx) b.classList.add('picked'); else b.classList.add('dim');
+    });
+    feedback.classList.add('show','neutral');
+    feedbackTag.textContent = "Noted";
+    feedbackText.textContent = "There's no right answer here — just building your reading.";
+  }
+
+  nextBtn.classList.add('show');
+  nextBtn.textContent = current === track.questions.length - 1 ? "See my reading →" : "Next →";
+}
+
+nextBtn.addEventListener('click', ()=>{
+  current++;
+  const track = TRACKS[activeTrackKey];
+  if (current >= track.questions.length){
+    if (track.type === 'knowledge') showKnowledgeResults();
+    else showStampResults();
+  } else {
+    renderQuestion();
+  }
+});
+
+function showKnowledgeResults(){
+  updatePulse();
+  showOnly(resultsKnowledge);
+  const total = TRACKS.track3.questions.length;
+  document.getElementById('scoreNum').textContent = score;
+
+  const r = 76, circumference = 2*Math.PI*r;
+  const gaugeFill = document.getElementById('gaugeFill');
+  gaugeFill.style.strokeDasharray = circumference;
+  gaugeFill.style.strokeDashoffset = circumference;
+  requestAnimationFrame(()=>{ setTimeout(()=>{ gaugeFill.style.strokeDashoffset = circumference*(1-score/total); }, 100); });
+
+  let title, desc;
+  if (score >= 9){ title="You're investment-fit"; desc="Strong grip on the fundamentals — SIPs, compounding, risk and diversification all clicked. A Wealth Clinic session can help fine-tune allocation and go from informed to optimised."; }
+  else if (score >= 6){ title="Good foundation, room to build"; desc="You know the basics well. A few gaps around risk and fund categories are completely normal — a 20-minute check-up with us can close them fast."; }
+  else if (score >= 3){ title="The basics are worth revisiting"; desc="A few core concepts — SIPs, compounding, diversification — could use a closer look. That's exactly what the Wealth Clinic is for. No jargon, just clarity."; }
+  else { title="Let's start from the fundamentals"; desc="Everyone starts somewhere. Book a free session and we'll walk through the basics of investing at your own pace — no pressure, just a clear starting point."; }
+
+  document.getElementById('kTitle').textContent = title;
+  document.getElementById('kDesc').textContent = desc;
+}
+
+function showStampResults(){
+  updatePulse();
+  showOnly(resultsStamp);
+  let maxIdx = 0;
+  for (let i=1;i<4;i++){ if (tally[i] > tally[maxIdx]) maxIdx = i; }
+  const bank = activeTrackKey === 'track1' ? ARCHETYPES : VALUEGAPS;
+  const result = bank[maxIdx];
+
+  document.getElementById('stampEyebrow').textContent = result.eyebrow;
+  document.getElementById('stampText').textContent = result.code;
+  document.getElementById('sTitle').textContent = result.title;
+  document.getElementById('sDesc').textContent = result.desc;
+}
+
+showOnly(sectorScreen);
+</script>
+</body>
+</html>
