@@ -20,13 +20,30 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
 .masthead h1{font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:4px 0 0 0;letter-spacing:-.01em;}
 .badge{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;background:var(--teal-deep);color:#EFF4F1;padding:6px 10px;border-radius:999px;white-space:nowrap;align-self:flex-start;}
 
+/* ---- Name capture ---- */
+.name-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;margin-bottom:16px;}
+.name-card label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:600;display:block;margin-bottom:8px;}
+.name-row{display:flex;gap:10px;}
+.name-row input{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--ink);background:#FBFCFB;}
+.name-row input:focus{outline:none;border-color:var(--teal);}
+.name-row button{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;background:var(--teal);color:#fff;border:none;border-radius:10px;padding:0 18px;cursor:pointer;}
+.name-row button:hover{background:var(--teal-deep);}
+.name-error{font-size:12.5px;color:var(--brick);margin-top:8px;display:none;}
+.name-error.show{display:block;}
+.name-locked{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:16px;display:none;}
+.name-locked.show{display:flex;}
+.name-locked span{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-soft);}
+.name-locked b{color:var(--ink);}
+.name-locked button{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+
 /* ---- Sector select ---- */
 .sector-screen{display:flex;flex-direction:column;gap:12px;}
+.sector-screen.locked .sector-card{opacity:.45;pointer-events:none;}
 .sector-intro{font-size:14.5px;color:var(--ink-soft);line-height:1.55;margin:0 0 6px 0;}
 .sector-card{
   background:var(--card);border:1.5px solid var(--line);border-radius:18px;
   padding:20px 20px;cursor:pointer;text-align:left;display:flex;gap:16px;align-items:flex-start;
-  transition:border-color .15s ease, transform .1s ease;
+  transition:border-color .15s ease, transform .1s ease, opacity .15s ease;
 }
 .sector-card:hover{border-color:var(--teal);transform:translateY(-1px);}
 .sector-mark{
@@ -37,6 +54,8 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
 .sector-body .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:600;display:block;margin-bottom:3px;}
 .sector-body h3{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin:0 0 4px 0;}
 .sector-body p{font-size:13.5px;color:var(--ink-soft);margin:0;line-height:1.5;}
+
+.admin-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;margin-top:6px;align-self:flex-start;opacity:.7;}
 
 /* ---- Vitals strip ---- */
 .vitals-strip{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin-bottom:18px;display:none;align-items:center;gap:14px;}
@@ -103,7 +122,17 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
 .cta-btn.ghost{background:transparent;color:var(--teal);border:1.5px solid var(--teal);}
 .cta-btn.ghost:hover{background:#EAF4EF;}
 
-@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important;}}
+/* ---- Admin panel ---- */
+.admin-overlay{display:none;position:fixed;inset:0;background:rgba(15,42,46,.55);align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:50;}
+.admin-overlay.show{display:flex;}
+.admin-panel{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:760px;}
+.admin-panel h2{font-family:'Fraunces',serif;font-size:19px;margin:0 0 4px 0;}
+.admin-panel p.sub{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px 0;}
+.admin-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.admin-table th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1.5px solid var(--line);padding:6px 8px;}
+.admin-table td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top;}
+.admin-empty{font-size:13px;color:var(--ink-soft);padding:16px 0;}
+.admin-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end;}
 </style>
 </head>
 <body>
@@ -117,6 +146,20 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
     <div class="badge">FREE CHECK-UP</div>
   </div>
 
+  <!-- Name capture -->
+  <div class="name-card" id="nameCard">
+    <label for="nameInput">Your name (so we can save your check-up)</label>
+    <div class="name-row">
+      <input type="text" id="nameInput" placeholder="e.g. Priya Sharma" />
+      <button id="nameSaveBtn">Continue</button>
+    </div>
+    <div class="name-error" id="nameError">Please enter your name to continue.</div>
+  </div>
+  <div class="name-locked" id="nameLocked">
+    <span>Checking in as <b id="nameLockedText"></b></span>
+    <button id="nameEditBtn">change</button>
+  </div>
+
   <div class="vitals-strip" id="vitalsStrip">
     <svg width="56" height="28" viewBox="0 0 64 32">
       <path class="pulse-path" d="M0 16 L14 16 L19 4 L25 28 L30 16 L64 16"/>
@@ -127,7 +170,7 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
   </div>
 
   <!-- Sector select -->
-  <div class="sector-screen" id="sectorScreen">
+  <div class="sector-screen locked" id="sectorScreen">
     <p class="sector-intro">Three quick check-ups, each built for a different starting point. Pick the one that sounds like you.</p>
 
     <button class="sector-card" data-track="track1">
@@ -153,9 +196,11 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
       <div class="sector-body">
         <span class="tag">Invest on your own, directly</span>
         <h3>Test your investing knowledge</h3>
-        <p>A 10-question check on the fundamentals — SIPs, funds, risk, and the numbers behind them.</p>
+        <p>A quick check on the fundamentals — funds, risk, timelines, and the numbers behind them.</p>
       </div>
     </button>
+
+    <button class="admin-link" id="adminLink">View saved responses (this device)</button>
   </div>
 
   <!-- Quiz card -->
@@ -181,7 +226,7 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
         <circle class="gauge-ring-bg" cx="90" cy="90" r="76"/>
         <circle class="gauge-ring-fill" id="gaugeFill" cx="90" cy="90" r="76"/>
       </svg>
-      <div class="gauge-score"><div class="num" id="scoreNum">0</div><div class="of">OUT OF 10</div></div>
+      <div class="gauge-score"><div class="num" id="scoreNum">0</div><div class="of" id="scoreOf">OUT OF 9</div></div>
     </div>
     <div class="tier-title" id="kTitle"></div>
     <p class="tier-desc" id="kDesc"></p>
@@ -205,10 +250,23 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
 
 </div>
 
+<!-- Admin overlay -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-panel">
+    <h2>Saved responses</h2>
+    <p class="sub">Stored in this browser only. Export to CSV to keep a copy or move it into a spreadsheet.</p>
+    <div id="adminContent"></div>
+    <div class="admin-actions">
+      <button class="cta-btn ghost" id="adminClose">Close</button>
+      <button class="cta-btn primary" id="adminExport">Download CSV</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ---------------------------- DATA ---------------------------- */
 
-// TRACK 1 — not investing yet (personality, tags 0-3)
+// TRACK 1 — not investing yet (personality, tags 0-3). Q3 and Q7 removed per request.
 const ARCHETYPES = [
   { code:"CS", eyebrow:"Your money mindset", title:"The Curious Starter",
     desc:"You're genuinely curious about investing — you just need a plain-language starting point. A Wealth Clinic session is built for exactly that: no jargon, just your first steps mapped out clearly." },
@@ -238,13 +296,6 @@ const track1 = {
         {label:"A bit anxious, it feels complicated", tag:3},
         {label:"Comfortable with the idea, just haven't acted", tag:1}
       ]},
-    { q:"How would you describe your relationship with money today?",
-      options:[
-        {label:"I track it closely", tag:1},
-        {label:"I go with the flow", tag:2},
-        {label:"I try not to think about it too much", tag:3},
-        {label:"I have a rough sense of where I stand", tag:0}
-      ]},
     { q:"If a friend offered to explain investing over coffee, in plain language, you'd say...",
       options:[
         {label:"Yes, let's do it this week", tag:0},
@@ -266,13 +317,6 @@ const track1 = {
         {label:"A little anxious", tag:3},
         {label:"Responsible, I like having a plan", tag:1}
       ]},
-    { q:"How do you usually make bigger decisions?",
-      options:[
-        {label:"Research thoroughly before deciding", tag:0},
-        {label:"Ask people I trust", tag:1},
-        {label:"Take my time, decide slowly", tag:2},
-        {label:"Go with my gut", tag:3}
-      ]},
     { q:"Which best describes your saving habit?",
       options:[
         {label:"I save regularly, without fail", tag:1},
@@ -283,7 +327,7 @@ const track1 = {
   ]
 };
 
-// TRACK 2 — invest through another wealth manager (value-add discovery, tags 0-3)
+// TRACK 2 — invest through another wealth manager (value-add discovery, tags 0-3). Q5, Q8 removed; Q7 text changed.
 const VALUEGAPS = [
   { code:"CO", eyebrow:"Where we can add the most value", title:"Proactive Communication",
     desc:"You'd value more regular, proactive contact — not just when markets move. That's central to how we work: scheduled check-ins and updates, so you're never the one chasing for answers." },
@@ -327,13 +371,6 @@ const track2 = {
         {label:"A plan that feels built for me", tag:2},
         {label:"Help beyond investing — insurance, tax, estate planning", tag:3}
       ]},
-    { q:"How did your current investment plan come about?",
-      options:[
-        {label:"A recommendation I didn't get to discuss much", tag:0},
-        {label:"Honestly, I'm not sure how the costs were decided", tag:1},
-        {label:"It's fairly standard, not built around my specific goals", tag:2},
-        {label:"It only covers investments, not my full financial picture", tag:3}
-      ]},
     { q:"What would make you feel more confident about your money?",
       options:[
         {label:"Knowing someone's actively watching it, not just me checking", tag:0},
@@ -341,46 +378,38 @@ const track2 = {
         {label:"Knowing my plan reflects my actual goals and life stage", tag:2},
         {label:"Knowing my investments, insurance, and tax all work together", tag:3}
       ]},
-    { q:"What's the last thing your advisor proactively told you about?",
+    { q:"Did you do your financial planning before you started your investments?",
       options:[
         {label:"Honestly, it's been a while since they reached out", tag:0},
         {label:"Not sure — the fee structure isn't very clear to me", tag:1},
         {label:"Nothing specific to my particular situation", tag:2},
         {label:"Just fund performance, not my broader finances", tag:3}
-      ]},
-    { q:"What matters most to you in a wealth management relationship?",
-      options:[
-        {label:"Regular, proactive communication", tag:0},
-        {label:"Complete transparency on costs", tag:1},
-        {label:"A plan personalized to me", tag:2},
-        {label:"One place for all my financial needs", tag:3}
       ]}
   ]
 };
 
-// TRACK 3 — direct/self-directed investors (knowledge, scored)
+// TRACK 3 — direct/self-directed investors (knowledge, scored).
+// Original Q1, Q2 removed. Follow-up on ELSS lock-in added after the ELSS question.
+// Old Q6 text swapped to "What's the first step when you start investing?" (same options).
 const track3 = {
   label:"TRACK 03",
   type:"knowledge",
   questions:[
-    { q:"Which investment is generally meant for long-term wealth creation?",
-      options:["Equity Mutual Fund","Savings Account","Wallet Cash"], correct:0,
-      why:"Equity mutual funds are built to grow money over years by riding out short-term ups and downs — savings accounts and idle cash mainly protect money, they don't grow it much." },
-    { q:"Which investment lets you invest a small amount every month?",
-      options:["SIP","Lump Sum Only","EMI"], correct:0,
-      why:"A SIP (Systematic Investment Plan) lets you put in a fixed, smaller amount every month instead of one big sum — making investing a habit rather than a one-time event." },
     { q:"Which of these is generally more stable?",
       options:["Large Cap Companies","Small Cap Companies","Startups"], correct:0,
       why:"Large cap companies are big, established businesses with steadier earnings, so their share prices tend to swing less than smaller, younger companies." },
     { q:"Which is a tax-saving mutual fund?",
       options:["ELSS","Liquid Fund","Overnight Fund"], correct:0,
       why:"ELSS (Equity Linked Savings Scheme) funds qualify for a tax deduction under Section 80C — liquid and overnight funds are for parking cash short-term, not for saving tax." },
+    { q:"Follow-up: what's the lock-in period for ELSS funds?",
+      options:["3 years","5 years","10 years"], correct:0,
+      why:"ELSS comes with a mandatory 3-year lock-in — the shortest among tax-saving options under Section 80C, which is a big part of its appeal." },
     { q:"What is the biggest advantage of starting to invest early?",
       options:["Power of Compounding","Lower Taxes","Free Returns"], correct:0,
       why:"The earlier you start, the longer your returns have to earn returns of their own — that snowball effect is compounding, and time is the main ingredient it needs." },
-    { q:"What should you build before you start investing?",
+    { q:"What's the first step when you start investing?",
       options:["Emergency Fund","Retirement Fund","Vacation Fund"], correct:0,
-      why:"An emergency fund (usually 3–6 months of expenses) means you won't have to break your investments the moment life throws a surprise at you." },
+      why:"Building an emergency fund first (usually 3–6 months of expenses) means you won't have to break your investments the moment life throws a surprise at you." },
     { q:"What does \"long term\" generally mean for equity investing?",
       options:["5 years or more","6 months","1 year"], correct:0,
       why:"Equities need time to smooth out short-term volatility — five years or more is the usual minimum horizon for equity to reliably work in your favour." },
@@ -398,12 +427,100 @@ const track3 = {
 
 const TRACKS = { track1, track2, track3 };
 
+/* ---------------------------- NAME CAPTURE ---------------------------- */
+let participantName = "";
+const nameCard = document.getElementById('nameCard');
+const nameLocked = document.getElementById('nameLocked');
+const nameInput = document.getElementById('nameInput');
+const nameError = document.getElementById('nameError');
+const sectorScreenEl = document.getElementById('sectorScreen');
+
+function lockInName(){
+  const val = nameInput.value.trim();
+  if (!val){ nameError.classList.add('show'); return; }
+  nameError.classList.remove('show');
+  participantName = val;
+  document.getElementById('nameLockedText').textContent = participantName;
+  nameCard.style.display = 'none';
+  nameLocked.classList.add('show');
+  sectorScreenEl.classList.remove('locked');
+}
+document.getElementById('nameSaveBtn').addEventListener('click', lockInName);
+nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') lockInName(); });
+document.getElementById('nameEditBtn').addEventListener('click', ()=>{
+  nameLocked.classList.remove('show');
+  nameCard.style.display = 'block';
+  sectorScreenEl.classList.add('locked');
+  nameInput.value = participantName;
+  nameInput.focus();
+});
+
+/* ---------------------------- RESPONSE LOGGING ---------------------------- */
+const STORAGE_KEY = 'wealthClinicResponses';
+
+function saveResponse(entry){
+  let all = [];
+  try { all = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e){ all = []; }
+  all.push(entry);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
+function getAllResponses(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e){ return []; }
+}
+
+function renderAdminPanel(){
+  const rows = getAllResponses();
+  const content = document.getElementById('adminContent');
+  if (!rows.length){
+    content.innerHTML = '<p class="admin-empty">No responses saved on this device yet.</p>';
+    return;
+  }
+  let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Track</th><th>Result</th><th>When</th></tr></thead><tbody>';
+  rows.slice().reverse().forEach(r=>{
+    html += `<tr><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.trackLabel)}</td><td>${escapeHtml(r.result)}</td><td>${escapeHtml(new Date(r.timestamp).toLocaleString())}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  content.innerHTML = html;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+document.getElementById('adminLink').addEventListener('click', ()=>{
+  renderAdminPanel();
+  document.getElementById('adminOverlay').classList.add('show');
+});
+document.getElementById('adminClose').addEventListener('click', ()=>{
+  document.getElementById('adminOverlay').classList.remove('show');
+});
+document.getElementById('adminExport').addEventListener('click', ()=>{
+  const rows = getAllResponses();
+  if (!rows.length) return;
+  const header = ['Name','Track','Result','Timestamp','Answers'];
+  const lines = [header.join(',')];
+  rows.forEach(r=>{
+    const answersStr = r.answers.map(a=>`${a.question}: ${a.answer}`).join(' | ');
+    const line = [r.name, r.trackLabel, r.result, new Date(r.timestamp).toLocaleString(), answersStr]
+      .map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
+    lines.push(line);
+  });
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'wealth_clinic_responses.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
 /* ---------------------------- ENGINE ---------------------------- */
 let activeTrackKey = null;
 let current = 0;
 let score = 0;
 let tally = [0,0,0,0];
 let answered = false;
+let answerLog = [];
 
 const sectorScreen = document.getElementById('sectorScreen');
 const quizCard = document.getElementById('quizCard');
@@ -436,7 +553,10 @@ function showOnly(el){
 }
 
 document.querySelectorAll('.sector-card').forEach(card=>{
-  card.addEventListener('click', ()=>startTrack(card.dataset.track));
+  card.addEventListener('click', ()=>{
+    if (!participantName) return;
+    startTrack(card.dataset.track);
+  });
 });
 backLink.addEventListener('click', goToSectorSelect);
 document.getElementById('switchFromKnowledge').addEventListener('click', goToSectorSelect);
@@ -451,7 +571,7 @@ function goToSectorSelect(){
 
 function startTrack(key){
   activeTrackKey = key;
-  current = 0; score = 0; tally = [0,0,0,0];
+  current = 0; score = 0; tally = [0,0,0,0]; answerLog = [];
   trackChip.textContent = TRACKS[key].label;
   showOnly(quizCard);
   renderQuestion();
@@ -498,6 +618,7 @@ function selectOption(idx){
   if (track.type === 'knowledge'){
     const isCorrect = idx === item.correct;
     if (isCorrect) score++;
+    answerLog.push({question:item.q, answer:item.options[idx]});
     allBtns.forEach((b,i)=>{
       b.disabled = true;
       if (i===item.correct) b.classList.add('correct');
@@ -509,6 +630,7 @@ function selectOption(idx){
     feedbackText.textContent = item.why;
   } else {
     tally[item.options[idx].tag]++;
+    answerLog.push({question:item.q, answer:item.options[idx].label});
     allBtns.forEach((b,i)=>{
       b.disabled = true;
       if (i===idx) b.classList.add('picked'); else b.classList.add('dim');
@@ -538,6 +660,7 @@ function showKnowledgeResults(){
   showOnly(resultsKnowledge);
   const total = TRACKS.track3.questions.length;
   document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreOf').textContent = `OUT OF ${total}`;
 
   const r = 76, circumference = 2*Math.PI*r;
   const gaugeFill = document.getElementById('gaugeFill');
@@ -546,13 +669,19 @@ function showKnowledgeResults(){
   requestAnimationFrame(()=>{ setTimeout(()=>{ gaugeFill.style.strokeDashoffset = circumference*(1-score/total); }, 100); });
 
   let title, desc;
-  if (score >= 9){ title="You're investment-fit"; desc="Strong grip on the fundamentals — SIPs, compounding, risk and diversification all clicked. A Wealth Clinic session can help fine-tune allocation and go from informed to optimised."; }
-  else if (score >= 6){ title="Good foundation, room to build"; desc="You know the basics well. A few gaps around risk and fund categories are completely normal — a 20-minute check-up with us can close them fast."; }
-  else if (score >= 3){ title="The basics are worth revisiting"; desc="A few core concepts — SIPs, compounding, diversification — could use a closer look. That's exactly what the Wealth Clinic is for. No jargon, just clarity."; }
+  const pct = score/total;
+  if (pct >= 0.85){ title="You're investment-fit"; desc="Strong grip on the fundamentals — funds, compounding, risk and diversification all clicked. A Wealth Clinic session can help fine-tune allocation and go from informed to optimised."; }
+  else if (pct >= 0.55){ title="Good foundation, room to build"; desc="You know the basics well. A few gaps around risk and fund categories are completely normal — a 20-minute check-up with us can close them fast."; }
+  else if (pct >= 0.3){ title="The basics are worth revisiting"; desc="A few core concepts could use a closer look. That's exactly what the Wealth Clinic is for. No jargon, just clarity."; }
   else { title="Let's start from the fundamentals"; desc="Everyone starts somewhere. Book a free session and we'll walk through the basics of investing at your own pace — no pressure, just a clear starting point."; }
 
   document.getElementById('kTitle').textContent = title;
   document.getElementById('kDesc').textContent = desc;
+
+  saveResponse({
+    name: participantName, track: activeTrackKey, trackLabel: TRACKS.track3.label,
+    result: `${title} (${score}/${total})`, timestamp: Date.now(), answers: answerLog
+  });
 }
 
 function showStampResults(){
@@ -567,6 +696,11 @@ function showStampResults(){
   document.getElementById('stampText').textContent = result.code;
   document.getElementById('sTitle').textContent = result.title;
   document.getElementById('sDesc').textContent = result.desc;
+
+  saveResponse({
+    name: participantName, track: activeTrackKey, trackLabel: TRACKS[activeTrackKey].label,
+    result: result.title, timestamp: Date.now(), answers: answerLog
+  });
 }
 
 showOnly(sectorScreen);
