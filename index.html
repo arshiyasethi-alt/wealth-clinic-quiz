@@ -352,24 +352,24 @@ const track2 = {
       ]},
     { q:"How often does your wealth manager give you updates about your investments?",
       options:[
-        {label:"I'd like more regular updates on it", tag:0},
-        {label:"I understand the products, less clear on total costs", tag:1},
-        {label:"I understand it, but it doesn't feel tailored to me", tag:2},
-        {label:"I understand it, but not how it fits my whole financial life", tag:3}
+        {label:"Regularly, and with real detail", tag:null},
+        {label:"Only every few months", tag:0},
+        {label:"Rarely, and it feels rushed when they do", tag:2},
+        {label:"Never really — I find out on my own", tag:3}
       ]},
     { q:"When you have a question about your portfolio, what usually happens?",
       options:[
         {label:"I have to chase my advisor for an answer", tag:0},
-        {label:"I get an answer, but not sure it's the full picture", tag:1},
-        {label:"I get an answer, but it feels a bit templated", tag:2},
-        {label:"I get an answer about investments, but not the bigger picture", tag:3}
+        {label:"They respond quickly, but skip the cost details", tag:1},
+        {label:"The response feels copy-pasted, not specific to me", tag:2},
+        {label:"They answer the investment part, not how it fits my bigger goals", tag:3}
       ]},
     { q:"How often does your wealth manager review your portfolio?",
       options:[
-        {label:"How often my portfolio is actually being reviewed", tag:0},
-        {label:"Exactly what I'm paying in fees, and why", tag:1},
-        {label:"Whether my plan is really built around my goals", tag:2},
-        {label:"How my investments connect to tax, insurance, and my bigger goals", tag:3}
+        {label:"Every few months, like clockwork", tag:null},
+        {label:"Rarely — mostly during market swings", tag:0},
+        {label:"Only once, when the plan was first set up", tag:2},
+        {label:"Reviews cover the investments, not my whole financial picture", tag:3}
       ]},
     { q:"What would make you feel more confident about your portfolio?",
       options:[
@@ -632,7 +632,8 @@ function selectOption(idx){
     feedbackTag.textContent = isCorrect ? "Right on the money" : "Worth a second look";
     feedbackText.textContent = item.why;
   } else {
-    tally[item.options[idx].tag]++;
+    const chosenTag = item.options[idx].tag;
+    if (chosenTag !== null && chosenTag !== undefined) tally[chosenTag]++;
     answerLog.push({question:item.q, answer:item.options[idx].label});
     allBtns.forEach((b,i)=>{
       b.disabled = true;
