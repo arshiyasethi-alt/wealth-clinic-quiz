@@ -3,26 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Paisa's Got Latent</title>
+<title>Investors Idol</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
 :root{
   --bg:#EFF4F1; --card:#FFFFFF; --ink:#0F2A2E; --ink-soft:#4A6259;
   --teal:#1F6F5C; --teal-deep:#14493D; --gold:#C79A3D; --brick:#B5493D; --line:#DCE6E1;
+  --stage-dark:#0A0C11; --stage-dark2:#040507; --stage-glow:rgba(227,178,60,.32);
+  --marquee:#F3E3B8; --marquee-soft:#B9AF95;
 }
 *{box-sizing:border-box;}
-body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:var(--ink);padding:32px 16px;display:flex;justify-content:center;}
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse 900px 520px at 50% -8%, var(--stage-glow), transparent 60%),
+    radial-gradient(ellipse 640px 420px at 10% 8%, rgba(227,178,60,.10), transparent 55%),
+    radial-gradient(ellipse 640px 420px at 90% 6%, rgba(227,178,60,.10), transparent 55%),
+    linear-gradient(180deg, var(--stage-dark) 0%, var(--stage-dark2) 100%);
+  font-family:'IBM Plex Sans',sans-serif;color:var(--ink);padding:32px 16px;display:flex;justify-content:center;
+}
 .app{width:100%;max-width:640px;}
 
-.masthead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;}
-.masthead .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:600;}
-.masthead h1{font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:4px 0 0 0;letter-spacing:-.01em;}
-.masthead .tagline{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;color:var(--ink-soft);margin-top:3px;}
-.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;background:var(--teal-deep);color:#EFF4F1;padding:6px 10px;border-radius:999px;white-space:nowrap;align-self:flex-start;}
+.masthead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px;}
+.masthead .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--marquee-soft);font-weight:600;}
+.masthead h1{font-family:'Fraunces',serif;font-weight:600;font-size:27px;margin:6px 0 0 0;letter-spacing:-.01em;color:var(--marquee);text-shadow:0 0 22px rgba(227,178,60,.55), 0 0 2px rgba(255,255,255,.15);}
+.masthead h1 .star{color:var(--gold);font-size:15px;vertical-align:middle;opacity:.85;}
+.masthead .tagline{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;color:var(--marquee-soft);margin-top:5px;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;background:var(--stage-dark);border:1px solid var(--gold);color:var(--marquee);padding:6px 10px;border-radius:999px;white-space:nowrap;align-self:flex-start;box-shadow:0 0 14px rgba(227,178,60,.25);}
 
 /* ---- Name capture ---- */
-.name-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;margin-bottom:16px;}
+.name-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;margin-bottom:16px;box-shadow:0 10px 34px rgba(0,0,0,.4);}
 .name-card label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:600;display:block;margin-bottom:8px;}
 .name-row{display:flex;gap:10px;}
 .name-row input{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--ink);background:#FBFCFB;}
@@ -31,7 +42,7 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
 .name-row button:hover{background:var(--teal-deep);}
 .name-error{font-size:12.5px;color:var(--brick);margin-top:8px;display:none;}
 .name-error.show{display:block;}
-.name-locked{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:16px;display:none;}
+.name-locked{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:16px;display:none;box-shadow:0 6px 24px rgba(0,0,0,.35);}
 .name-locked.show{display:flex;}
 .name-locked span{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-soft);}
 .name-locked b{color:var(--ink);}
@@ -40,13 +51,14 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
 /* ---- Sector select ---- */
 .sector-screen{display:flex;flex-direction:column;gap:12px;}
 .sector-screen.locked .sector-card{opacity:.45;pointer-events:none;}
-.sector-intro{font-size:14.5px;color:var(--ink-soft);line-height:1.55;margin:0 0 6px 0;}
+.sector-intro{font-size:14.5px;color:var(--marquee-soft);line-height:1.55;margin:0 0 6px 0;}
 .sector-card{
   background:var(--card);border:1.5px solid var(--line);border-radius:18px;
   padding:20px 20px;cursor:pointer;text-align:left;display:flex;gap:16px;align-items:flex-start;
-  transition:border-color .15s ease, transform .1s ease, opacity .15s ease;
+  transition:border-color .15s ease, transform .1s ease, opacity .15s ease, box-shadow .15s ease;
+  box-shadow:0 6px 24px rgba(0,0,0,.35), 0 0 0 rgba(227,178,60,0);
 }
-.sector-card:hover{border-color:var(--teal);transform:translateY(-1px);}
+.sector-card:hover{border-color:var(--gold);transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,0,0,.4), 0 0 22px rgba(227,178,60,.25);}
 .sector-mark{
   width:44px;height:44px;border-radius:12px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
@@ -56,10 +68,10 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
 .sector-body h3{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin:0 0 4px 0;}
 .sector-body p{font-size:13.5px;color:var(--ink-soft);margin:0;line-height:1.5;}
 
-.admin-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;margin-top:6px;align-self:flex-start;opacity:.7;}
+.admin-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--marquee-soft);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;margin-top:6px;align-self:flex-start;opacity:.85;}
 
 /* ---- Vitals strip ---- */
-.vitals-strip{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin-bottom:18px;display:none;align-items:center;gap:14px;}
+.vitals-strip{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin-bottom:18px;display:none;align-items:center;gap:14px;box-shadow:0 6px 24px rgba(0,0,0,.35);}
 .vitals-strip.show{display:flex;}
 .pulse-path{fill:none;stroke:var(--line);stroke-width:2.5;}
 .pulse-path-fill{fill:none;stroke:var(--teal);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1);}
@@ -68,7 +80,7 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
 .track-chip{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;background:#EAF4EF;color:var(--teal-deep);padding:5px 9px;border-radius:999px;font-weight:600;}
 
 /* ---- Quiz card ---- */
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 26px 26px;min-height:340px;display:none;flex-direction:column;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 26px 26px;min-height:340px;display:none;flex-direction:column;box-shadow:0 10px 34px rgba(0,0,0,.4);}
 .card.show{display:flex;}
 .q-number{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:.08em;margin-bottom:10px;}
 .q-text{font-family:'Fraunces',serif;font-size:21px;font-weight:500;line-height:1.35;margin:0 0 22px 0;}
@@ -142,8 +154,8 @@ body{margin:0;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:
   <div class="masthead">
     <div>
       <div class="eyebrow">Robinhood Capital × OneInsure</div>
-      <h1>Paisa's Got Latent</h1>
-      <div class="tagline">Step up. Get read. No filter.</div>
+      <h1><span class="star">✦</span> Investors Idol <span class="star">✦</span></h1>
+      <div class="tagline">Your money story, center stage.</div>
     </div>
     <div class="badge">FREE CHECK-UP</div>
   </div>
